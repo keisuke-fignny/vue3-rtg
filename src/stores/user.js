@@ -6,6 +6,10 @@ export const useUserStore = defineStore({
     state: () => {
         return {
             isLoading: true,
+            pageNo: 0,
+            totalCount: 0,
+            numPerPage: 0,
+            pageAllCount: 0,
             users: [
                 {
                     'id': 0,
@@ -20,10 +24,15 @@ export const useUserStore = defineStore({
 
     },
     actions: {
-        async getUserList(){
-            const response = await axios.get('http://localhost:8080/api/user')
-            this.users = response.data;
-            this.isLoading = false
-        }
+        async getUserList(wantedPage){
+            const response = await axios.get('http://localhost:8080/api/user/page/' + wantedPage )
+            this.pageNo = Number(response.data.pageNo);
+            this.totalCount = Number(response.data.totalCount);
+            this.numPerPage = Number(response.data.numPerPage);
+            this.users = response.data.users;
+            this.isLoading = false;
+            this.pageAllCount = Math.ceil(this.totalCount / this.numPerPage);
+        },
+
     }
 })

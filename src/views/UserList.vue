@@ -1,18 +1,83 @@
 <script setup>
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useRouter, useRoute } from 'vue-router'
 import BaseHeader from '../components/BaseHeader.vue'
 import { useUserStore } from '../stores/user'
 
 const userStore = useUserStore()
+//storeToRefs(userStore)
 const router = useRouter()
+const route = useRoute()
 
-userStore.getUserList()
+const requestedPage = computed(
+    () => {
+        if(route.params.requestedPage < 1 || route.params.requestedPage === undefined ){
+            return 1;
+        } else {
+            return Number(route.params.requestedPage)
+        }
+    }
+)
+
+// 1ページより前の数字にならない制御
+const prevPage = computed(
+    () => {
+        if(requestedPage.value < 1){
+            return 1;
+        } else {
+            return requestedPage.value - 1
+        }
+    }
+)
+
+// ページ総数より大きな数字にならない制御
+const nextPage = computed(
+    () => {
+        if(requestedPage.value >= userStore.pageAllCount) {
+            return userStore.pageAllCount
+        } else {
+            return requestedPage.value + 1
+        }
+    }
+)
+
+// 前ページがあるか
+const canMovePrev = computed(
+    () => {
+        if(userStore.pageNo > 1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+)
+
+// 次のページがあるか
+const canMoveNext = computed(
+    () => {
+        if(userStore.pageNo < userStore.pageAllCount){
+            return true;
+        } else {
+            return false;
+        }
+    }
+)
+
+userStore.getUserList(requestedPage.value)
 const isLoading = computed(
     () => {
         return userStore.isLoading
     }
 )
+
+watch(route, () => {
+    userStore.getUserList(requestedPage.value)
+})
+
+function goToPage(toPage){
+    router.push({name: 'user_list_with_page', params: {requestedPage: toPage}})
+}
 
 // ユーザ編集画面へ
 function toUpdate(id) {
@@ -31,7 +96,7 @@ function toDeleteConfirm(id) {
         <div id="leftDiv"></div>
         <div id="centerDiv">
             <div id="buttonDiv">
-                <button type="button" v-on:click=" $router.push({name: 'user_create'})" id="createButton"><img src="@/assets/create.svg" /></button>
+                <button type="button" v-on:click="$router.push({name: 'user_create'})" id="createButton"><img src="@/assets/create.svg" /></button>
             </div>
             <p v-if="isLoading">研修生データの取得中.....</p>
             <section v-else>
@@ -64,6 +129,18 @@ function toDeleteConfirm(id) {
             </section>
             </div>
         <div id="rightDiv"></div>
+    </div>
+    <div class="pagenationDiv">
+
+        <div v-if="canMovePrev" class="pagenationLeftDiv"><button type="button" v-on:click="goToPage(prevPage)" class="btn btn-dark btn-small">前</button></div>
+        <div v-else class="pagenationLeftDiv"><button type="button" class="btn btn-secondary btn-small" disabled>前</button></div>
+        <div class="pagenationCenterDiv">
+            <div v-for="i in (userStore.numPerPage + 1)" v-bind:key="i">
+                <button type="button" v-on:click="goToPage(i)" class="btn btn-outline-secondary ms-1 me-1">{{ i }}</button>
+            </div>
+        </div>
+        <div v-if="canMoveNext" class="pagenationRightDiv"><button type="button" v-on:click="goToPage(nextPage)" class="btn btn-dark btn-small">次</button></div>
+        <div v-else class="pagenationRightDiv"><button type="button" v-on:click="toNext()" class="btn btn-secondary btn-small" disabled>次</button></div>
     </div>
 </template>
 
@@ -102,5 +179,26 @@ button#createButton img {
 }
 table {
     width: 100%;
+}
+
+div.pagenationDiv {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+div.pagenationLeftDiv {
+    width: 25%;
+    text-align: right;
+}
+div.pagenationCenterDiv {
+    width: 50%;
+    text-align: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content:center;
+}
+div.pagenationRightDiv {
+    width: 25%;
+    text-align: left;
 }
 </style>

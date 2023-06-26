@@ -6,7 +6,7 @@ const confirmStore = useConfirmUser()
 // ユーザー新規登録
 async function registerNewUser(){
     confirmStore.createUser()
-    window.location = 'http://localhost:5173/user/'
+    window.location = 'http://localhost:5173/user/'  //生のjs
 }
 
 </script>

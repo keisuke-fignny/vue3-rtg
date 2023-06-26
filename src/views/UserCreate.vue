@@ -12,7 +12,6 @@ const name = ref('名前')
 const mail = ref('example@com')
 
 function toConfirm(_name, _mail){
-    console.log(_name, _mail)
     confirmStore.setUserConfirm(_name, _mail)
     confirmStore.$patch({
         name: _name,

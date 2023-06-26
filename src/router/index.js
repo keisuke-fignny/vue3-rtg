@@ -23,6 +23,11 @@ const router = createRouter({
       component: UserList,
     },
     {
+      path: '/user/:requestedPage',
+      name: 'user_list_with_page',
+      component: UserList,
+    },
+    {
       path: '/user/create',
       name: 'user_create',
       component: UserCreate,

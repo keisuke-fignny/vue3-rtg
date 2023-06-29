@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useUserDetail } from '../stores/userDetail'
 import { useRoute } from 'vue-router'
+import { getStorage, ref as storageRef, deleteObject } from 'firebase/storage'
 import axios from 'axios'
 
 const route  = useRoute()
@@ -12,12 +13,25 @@ const isLoading = computed(
         return userDetail.isLoading
     }
 )
+const storage = getStorage()
+console.log(userDetail.user.storageFileName)
+const profileRef = storageRef(storage, '/' + userDetail.user.storageFileName)
 
+
+// FirebaseのStorage上
 async function deleteUser(){
-    await axios.post('http://localhost:8080/api/user/delete/',{
-        id: userDetail.user.id,
-    })
-    window.location = "http://localhost:5173/user/"
+
+    await deleteObject(profileRef)
+        .then(async () => {
+            console.log("deleted successfully")
+            await axios.post('http://localhost:8080/api/user/delete/',{
+            id: userDetail.user.id,
+            })
+            window.location = "http://localhost:5173/user/"
+        })
+        .catch((err) => {
+            console.log(err)
+        })
 }
 
 </script>

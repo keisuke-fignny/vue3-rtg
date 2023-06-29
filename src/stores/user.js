@@ -16,6 +16,7 @@ export const useUserStore = defineStore({
                     'name': '',
                     'mail': '',
                     'picture': '',
+                    'storage_file_name': '',
                 },
             ]
         }

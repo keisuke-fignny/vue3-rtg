@@ -1,14 +1,16 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
-import { storeToRefs } from 'pinia'
+import { computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import BaseHeader from '../components/BaseHeader.vue'
 import { useUserStore } from '../stores/user'
+//import { getDownloadURL, getStorage, ref as storageRef } from "firebase/storage"
 
 const userStore = useUserStore()
-//storeToRefs(userStore)
 const router = useRouter()
 const route = useRoute()
+
+//const storage = getStorage()
+//const defaultPic = storageRef(storage, "default.png")
 
 const requestedPage = computed(
     () => {
@@ -75,6 +77,18 @@ watch(route, () => {
     userStore.getUserList(requestedPage.value)
 })
 
+/*
+getDownloadURL(defaultPic)
+    .then((url) => {
+        console.log(url)
+        userStore.users[0].picture = url
+    })
+    .catch((error) => {
+        console.log(error)
+    })
+    */
+
+
 function goToPage(toPage){
     router.push({name: 'user_list_with_page', params: {requestedPage: toPage}})
 }
@@ -119,7 +133,7 @@ function toDeleteConfirm(id) {
                                 <td>{{ unit.id }}</td>
                                 <td>{{ unit.name }}</td>
                                 <td>{{ unit.mail }}</td>
-                                <td>{{ unit.picture }}</td>
+                                <td style="text-align:center;"><img v-bind:src="unit.picture" width="32" height="32" /></td>
                                 <td><img v-on:click="toUpdate(unit.id)" src="@/assets/edit.svg" class="menuIconImg"/></td>
                                 <td><img v-on:click="toDeleteConfirm(unit.id)" src="@/assets/trash.svg" class="menuIconImg"/></td>
                             </tr>
@@ -135,7 +149,7 @@ function toDeleteConfirm(id) {
         <div v-if="canMovePrev" class="pagenationLeftDiv"><button type="button" v-on:click="goToPage(prevPage)" class="btn btn-dark btn-small">前</button></div>
         <div v-else class="pagenationLeftDiv"><button type="button" class="btn btn-secondary btn-small" disabled>前</button></div>
         <div class="pagenationCenterDiv">
-            <div v-for="i in (userStore.numPerPage + 1)" v-bind:key="i">
+            <div v-for="i in (userStore.pageAllCount)" v-bind:key="i">
                 <button type="button" v-on:click="goToPage(i)" class="btn btn-outline-secondary ms-1 me-1">{{ i }}</button>
             </div>
         </div>

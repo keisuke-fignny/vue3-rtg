@@ -16,10 +16,12 @@ async function registerNewUser(){
         <div class="left-div">
             <div class="cell-div"><label for="name-input">名前</label></div>
             <div class="cell-div"><label for="mail-input">メールアドレス</label></div>
+            <div class="cell-div"><label for="pict-input">プロフィール画像</label></div>
         </div>
         <div class="center-div">
             <div class="cell-div"><label>{{ confirmStore.name }}</label></div>
             <div class="cell-div"><label>{{ confirmStore.mail }}</label></div>
+            <div class="cell-div"><img v-bind:src="confirmStore.picture" width="32" height="32"/></div>
         </div>
         <div class="right-div">
         </div>
